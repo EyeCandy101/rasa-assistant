@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dflow
+  template:
+    metadata:
+      labels:
+        app: dflow
+    spec:
+      containers:
+      - name: dflow
+        image: robotics4all/dflow:latest
+        ports:
+        - containerPort: 8080
