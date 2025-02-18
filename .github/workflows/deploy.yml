@@ -34,7 +34,7 @@ jobs:
           rasa train --fixed-model-name latest
 
       - name: Upload Model as Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rasa-model
           path: rasa/models/latest.tar.gz
