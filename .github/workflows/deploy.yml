@@ -28,7 +28,7 @@ jobs:
       - name: Install Dependencies 
         run: |
           pip install -r requirements.txt
-          pip install --no-cache-dir git+https://github.com/robotics-4-all/dFlow.git
+          pip install --no-cache-dir --verbose git+https://github.com/robotics-4-all/dFlow.git
 
       - name: Generate Model with dFlow
         run: |
