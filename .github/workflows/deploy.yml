@@ -28,7 +28,15 @@ jobs:
       - name: Install Dependencies 
         run: |
           pip install -r requirements.txt
-          pip install --no-cache-dir --verbose git+https://github.com/robotics-4-all/dFlow.git
+          
+      - name: Install dFlow
+        run: |
+          git clone https://github.com/robotics-4-all/dFlow.git
+          cd dFlow
+          # Ensure version is properly formatted
+          VERSION=$(python -c "import re;f=open('dflow/__init__.py');content=f.read();f.close();print(re.search(r'__version__\s*=\s*[\'\"]([^\'\"]*)[\'\"]',content).group(1))")
+          # Install in development mode
+          pip install -e .
 
       - name: Generate Model with dFlow
         run: |
