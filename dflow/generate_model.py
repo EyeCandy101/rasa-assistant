@@ -4,7 +4,7 @@ import shutil
 import subprocess
 
 # Define paths
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Root directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Root directory (parent of dflow)
 DFLOW_DIR = os.path.join(BASE_DIR, "dflow")  # dFlow directory
 RASA_DATA_DIR = os.path.join(BASE_DIR, "rasa", "data")  # Target output path
 RASA_DIR = os.path.join(BASE_DIR, "rasa")  # Rasa directory
