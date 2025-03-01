@@ -2,6 +2,7 @@ import os
 import tarfile
 import shutil
 import subprocess
+import sys
 
 # Define paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Root directory
@@ -32,6 +33,8 @@ generate_command = [
 
 subprocess.run(generate_command, check=True)
 print(f"Metamodel generated in {DFLOW_MODELS_DIR}")
+
+subprocess.run(["ls", "-la", DFLOW_MODELS_DIR])
 
 # Step 2: Find the generated tarball
 tar_files = [f for f in os.listdir(DFLOW_MODELS_DIR) if f.endswith(".tar.gz")]
@@ -94,4 +97,5 @@ if tar_files:
     
     print("Model structure is ready for training!")
 else:
-    print("No .tar.gz model file found in the output directory")
+    print("No .tar.gz model file found in the output directory. Exiting with code 1.")
+    sys.exit(1)
