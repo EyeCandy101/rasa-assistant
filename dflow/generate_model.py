@@ -4,82 +4,94 @@ import shutil
 import subprocess
 
 # Define paths
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Root directory (parent of dflow)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Root directory
 DFLOW_DIR = os.path.join(BASE_DIR, "dflow")  # dFlow directory
-RASA_DATA_DIR = os.path.join(BASE_DIR, "rasa", "data")  # Target output path
+DFLOW_MODELS_DIR = os.path.join(DFLOW_DIR, "models")  # Where dFlow generated models go
 RASA_DIR = os.path.join(BASE_DIR, "rasa")  # Rasa directory
-MODEL_DIR = os.path.join(RASA_DIR, "models")  # Where models should go
+
+# Ensure directories exist
+os.makedirs(DFLOW_MODELS_DIR, exist_ok=True)
+os.makedirs(RASA_DIR, exist_ok=True)
 
 # Ensure dFlow is installed
 try:
     import dflow
 except ImportError:
-    print(" dFlow is not installed. Installing now...")
+    print("dFlow is not installed. Installing now...")
     subprocess.run(["pip", "install", "git+https://github.com/robotics-4-all/dFlow.git"], check=True)
 
-# Step 1: Generate the model using dFlow (directly into rasa/data/)
-print(" Generating Rasa model from dFlow DSL...")
-os.makedirs(RASA_DATA_DIR, exist_ok=True)  # Ensure target directory exists
+# Step 1: Generate the model using dFlow (into dflow/models/)
+print("Generating Rasa model from dFlow DSL...")
 
 generate_command = [
     "textx", "generate",
     os.path.join(DFLOW_DIR, "metamodel.dflow"),
     "--target", "rasa",
-    "-o", RASA_DATA_DIR  # Directly output to rasa/data
+    "-o", DFLOW_MODELS_DIR  # Output to dflow/models
 ]
 
 subprocess.run(generate_command, check=True)
-print(f" Metamodel generated in {RASA_DATA_DIR}")
+print(f"Metamodel generated in {DFLOW_MODELS_DIR}")
 
-# Step 2: Handle the Metamodel (if generated)
-tar_files = [f for f in os.listdir(RASA_DATA_DIR) if f.endswith(".tar.gz")]
+# Step 2: Find the generated tarball
+tar_files = [f for f in os.listdir(DFLOW_MODELS_DIR) if f.endswith(".tar.gz")]
 
 if tar_files:
-    tar_file = os.path.join(RASA_DATA_DIR, tar_files[0])
+    tar_file = os.path.join(DFLOW_MODELS_DIR, tar_files[0])
     print(f"Found model file: {tar_file}")
 
-    # Step 3: Extract the tar.gz file
+    # Step 3: Clean Rasa directory to ensure fresh start
+    for item in os.listdir(RASA_DIR):
+        item_path = os.path.join(RASA_DIR, item)
+        if os.path.isdir(item_path):
+            shutil.rmtree(item_path)
+        else:
+            os.remove(item_path)
+    print("Cleaned Rasa directory for fresh extraction")
+
+    # Step 4: Create a temporary directory for extraction
+    temp_dir = os.path.join(BASE_DIR, "temp_extract")
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir)
+    os.makedirs(temp_dir)
+    
+    # Step 5: Extract the tar.gz file to the temporary directory
     with tarfile.open(tar_file, "r:gz") as tar:
-        # Get the main directory name from the first file path in the archive
-        main_dir_name = tar.getnames()[0].split('/')[0]
-        extracted_dir = os.path.join(RASA_DATA_DIR, main_dir_name)
-        
-        # Remove existing directory if it exists
-        if os.path.exists(extracted_dir):
-            shutil.rmtree(extracted_dir)
-        
-        # Extract all files
-        tar.extractall(RASA_DATA_DIR)
-        print(f"Extracted files to {extracted_dir}")
-
-    # Step 4: Move configuration files to the Rasa root directory
-    for file in ["config.yml", "domain.yml"]:
-        file_path = os.path.join(extracted_dir, file)
-        if os.path.exists(file_path):
-            shutil.move(file_path, os.path.join(RASA_DIR, file))
-            print(f"Moved {file} to {RASA_DIR}")
+        tar.extractall(temp_dir)
+        print(f"Extracted model files to temporary directory: {temp_dir}")
     
-    # Step 5: Move data files to the Rasa data directory
-    for subdir in ["nlu", "stories", "rules"]:
-        src_dir = os.path.join(extracted_dir, "data", subdir)
-        if os.path.exists(src_dir):
-            dst_dir = os.path.join(RASA_DATA_DIR, subdir)
-            if os.path.exists(dst_dir):
-                shutil.rmtree(dst_dir)
-            shutil.copytree(src_dir, dst_dir)
-            print(f"Moved {subdir} data to {dst_dir}")
+    # Step 6: Get the extracted directory name (usually the first directory in the archive)
+    extracted_items = os.listdir(temp_dir)
+    if len(extracted_items) == 1 and os.path.isdir(os.path.join(temp_dir, extracted_items[0])):
+        # Single directory was extracted - move its contents to rasa/
+        extracted_dir = os.path.join(temp_dir, extracted_items[0])
+        for item in os.listdir(extracted_dir):
+            src_path = os.path.join(extracted_dir, item)
+            dst_path = os.path.join(RASA_DIR, item)
+            if os.path.isdir(src_path):
+                shutil.copytree(src_path, dst_path)
+            else:
+                shutil.copy2(src_path, dst_path)
+        print(f"Moved contents from {extracted_dir} to {RASA_DIR}")
+    else:
+        # Multiple items were extracted - move everything to rasa/
+        for item in extracted_items:
+            src_path = os.path.join(temp_dir, item)
+            dst_path = os.path.join(RASA_DIR, item)
+            if os.path.isdir(src_path):
+                shutil.copytree(src_path, dst_path)
+            else:
+                shutil.copy2(src_path, dst_path)
+        print(f"Moved all extracted items to {RASA_DIR}")
     
-    # Step 6: Move the model itself to the models directory
-    model_files = [f for f in os.listdir(extracted_dir) if f.endswith(".tar.gz")]
-    if model_files:
-        model_file = os.path.join(extracted_dir, model_files[0])
-        shutil.move(model_file, os.path.join(MODEL_DIR, "latest.tar.gz"))
-        print(f"Moved model to {os.path.join(MODEL_DIR, 'latest.tar.gz')}")
+    # Step 7: Clean up temporary directory
+    shutil.rmtree(temp_dir)
+    print("Cleaned up temporary extraction directory")
     
-    # Cleanup extracted directory
-    shutil.rmtree(extracted_dir)
-    print("Cleanup complete")
-
-    print("Model is ready in Rasa!")
+    # Step 8: Create models directory in Rasa if it doesn't exist
+    models_dir = os.path.join(RASA_DIR, "models")
+    os.makedirs(models_dir, exist_ok=True)
+    
+    print("Model structure is ready for training!")
 else:
     print("No .tar.gz model file found in the output directory")
