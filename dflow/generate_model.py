@@ -6,12 +6,12 @@ import sys
 
 # Define paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Root directory
-DFLOW_DIR = os.path.join(BASE_DIR, "dflow")  # dFlow directory
-DFLOW_MODELS_DIR = os.path.join(DFLOW_DIR, "models")  # Where dFlow generated models go
+#DFLOW_DIR = os.path.join(BASE_DIR, "dflow")  # dFlow directory
+#DFLOW_MODELS_DIR = os.path.join(DFLOW_DIR, "models")  # Where dFlow generated models go
 RASA_DIR = os.path.join(BASE_DIR, "rasa")  # Rasa directory
 
 # Ensure directories exist
-os.makedirs(DFLOW_MODELS_DIR, exist_ok=True)
+#os.makedirs(DFLOW_MODELS_DIR, exist_ok=True)
 os.makedirs(RASA_DIR, exist_ok=True)
 
 # Ensure dFlow is installed
@@ -21,6 +21,19 @@ except ImportError:
     print("dFlow is not installed. Installing now...")
     subprocess.run(["pip", "install", "git+https://github.com/robotics-4-all/dFlow.git"], check=True)
 
+subprocess.run(["ls", "-la", RASA_DIR])
+    
+# Step 0: Clean Rasa directory to ensure fresh start
+    for item in os.listdir(RASA_DIR):
+        item_path = os.path.join(RASA_DIR, item)
+        if os.path.isdir(item_path):
+            shutil.rmtree(item_path)
+        else:
+            os.remove(item_path)
+    print("Cleaned Rasa directory for fresh extraction")   
+
+subprocess.run(["ls", "-la", RASA_DIR])
+
 # Step 1: Generate the model using dFlow (into dflow/models/)
 print("Generating Rasa model from dFlow DSL...")
 
@@ -28,14 +41,17 @@ generate_command = [
     "textx", "generate",
     os.path.join(DFLOW_DIR, "metamodel.dflow"),
     "--target", "rasa",
-    "-o", DFLOW_MODELS_DIR  # Output to dflow/models
+    "-o", RASA_DIR  # Output to rasa/
 ]
 
 subprocess.run(generate_command, check=True)
-print(f"Metamodel generated in {DFLOW_MODELS_DIR}")
+print(f"Metamodel generated in {RASA_DIR}")
 
-subprocess.run(["ls", "-la", DFLOW_MODELS_DIR])
+subprocess.run(["ls", "-la", RASA_DIR])
 
+print("Model structure is ready for training!")
+
+'''
 # Step 2: Find the generated tarball
 tar_files = [f for f in os.listdir(DFLOW_MODELS_DIR) if f.endswith(".tar.gz")]
 
@@ -99,3 +115,4 @@ if tar_files:
 else:
     print("No .tar.gz model file found in the output directory. Exiting with code 1.")
     sys.exit(1)
+'''
