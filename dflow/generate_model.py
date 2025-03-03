@@ -6,7 +6,7 @@ import sys
 
 # Define paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Root directory
-#DFLOW_DIR = os.path.join(BASE_DIR, "dflow")  # dFlow directory
+DFLOW_DIR = os.path.join(BASE_DIR, "dflow")  # dFlow directory
 #DFLOW_MODELS_DIR = os.path.join(DFLOW_DIR, "models")  # Where dFlow generated models go
 RASA_DIR = os.path.join(BASE_DIR, "rasa")  # Rasa directory
 
@@ -24,13 +24,13 @@ except ImportError:
 subprocess.run(["ls", "-la", RASA_DIR])
     
 # Step 0: Clean Rasa directory to ensure fresh start
-    for item in os.listdir(RASA_DIR):
-        item_path = os.path.join(RASA_DIR, item)
-        if os.path.isdir(item_path):
-            shutil.rmtree(item_path)
-        else:
-            os.remove(item_path)
-    print("Cleaned Rasa directory for fresh extraction")   
+for item in os.listdir(RASA_DIR):
+    item_path = os.path.join(RASA_DIR, item)
+    if os.path.isdir(item_path):
+        shutil.rmtree(item_path)
+    else:
+        os.remove(item_path)
+print("Cleaned Rasa directory")   
 
 subprocess.run(["ls", "-la", RASA_DIR])
 
@@ -50,7 +50,8 @@ print(f"Metamodel generated in {RASA_DIR}")
 subprocess.run(["ls", "-la", RASA_DIR])
 
 print("Model structure is ready for training!")
-
+cwd = os.getcwd()
+print(cwd)
 '''
 # Step 2: Find the generated tarball
 tar_files = [f for f in os.listdir(DFLOW_MODELS_DIR) if f.endswith(".tar.gz")]
