@@ -34,14 +34,14 @@ jobs:
           
       - name: Install dFlow
         run: |
-          git clone https://github.com/robotics-4-all/dFlow.git
-          cd dFlow
-          pip install .
-          cd .. 
+          #git clone https://github.com/robotics-4-all/dFlow.git
+          #cd dFlow
+          #pip install .
+          #cd .. 
 
       - name: Generate Model with dFlow
         run: |
-          python dflow/generate_model.py  # script to generate training data from metamodel.dflow
+          #python dflow/generate_model.py  # script to generate training data from metamodel.dflow
 
       - name: Verify Rasa Structure
         run: |
@@ -49,8 +49,8 @@ jobs:
 
       - name: Train Rasa Model
         run: |
-          cd rasa
-          rasa train --fixed-model-name latest
+          #cd rasa
+          #rasa train --fixed-model-name latest
 
       - name: Upload Model as Artifact
         uses: actions/upload-artifact@v4
