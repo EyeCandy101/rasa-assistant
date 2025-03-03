@@ -17,7 +17,7 @@ COPY --from=builder /app /app
 COPY . .
 
 # Copy pre-trained model
-COPY models/latest.tar.gz /app/models/latest.tar.gz
+COPY rasa/models/latest.tar.gz /app/models/latest.tar.gz
 
 # Expose Rasa API
 EXPOSE 5005
