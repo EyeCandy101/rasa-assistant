@@ -102,6 +102,12 @@ jobs:
             cluster:
               certificate-authority-data: ${{ secrets.K8S_CERTIFICATE_AUTHORITY_DATA }}
               server: ${{ secrets.K8S_SERVER }}
+          contexts:
+          - name: k3s-context
+            context:
+              cluster: k3s
+              user: k3s-user
+          current-context: k3s-context
           users:
           - name: k3s-user
             user:
@@ -109,7 +115,11 @@ jobs:
               client-key-data: ${{ secrets.K8S_CLIENT_KEY_DATA }}
           " > ~/.kube/config
 
+      - name: Test kubectl connection
+        run: |
+          kubectl get nodes
+
       - name: Deploy to K3s
         run: |
           kubectl apply -f k8s/rasa-deployment.yaml
-          kubectl apply -f k8s/service.yaml
+          #kubectl apply -f k8s/service.yaml
