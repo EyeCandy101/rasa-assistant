@@ -1,0 +1,28 @@
+version: "3.1"
+nlu:
+- intent: bot_challenge
+  examples: |
+    - who are you?
+    - what are you
+    - are you human or bot
+    - are you a bot
+    - tell me your name
+    - tell me about yourself
+    - what exactly are you
+    - what about you
+    - what's your name
+- intent: fill_information
+  examples: |
+    - Hello I am Nick
+    - Hi my name is John
+    - I am 30 years old
+    - I'm Nick and I am 20 years old
+    - I'm John and I am 20 years old
+    - Hi my name is Nick
+    - Hello I am John
+- intent: bot_challenge2
+  examples: |
+    - am I talking to a bot?
+    - are you a human?
+    - are you a bot?
+    - am I talking to a human?

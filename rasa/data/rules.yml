@@ -1,0 +1,15 @@
+version: "3.1"
+rules:
+- rule: Activate form1_form with fill_information
+  steps:
+  - intent: fill_information
+  - action: form1_form
+  - active_loop: form1_form
+
+- rule: Submit form1_form
+  condition:
+  - active_loop: form1_form
+  steps:
+  - active_loop: null
+  - action: action_answer_back
+

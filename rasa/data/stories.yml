@@ -1,0 +1,20 @@
+version: "3.1"
+stories:
+- story: system_dialogue - bot_challenge
+  steps:
+  - intent: bot_challenge
+  - action: action_bot_challenge
+
+- story: dialogue1 - fill_information
+  steps:
+  - intent: fill_information
+  - action: form1_form
+  - active_loop: form1_form
+  - active_loop: null
+  - action: action_answer_back
+
+- story: bot_challenge_dialogue - bot_challenge
+  steps:
+  - intent: bot_challenge2
+  - action: action_respond_iambot
+

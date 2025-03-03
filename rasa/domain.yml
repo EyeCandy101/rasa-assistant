@@ -1,0 +1,45 @@
+intents:
+  - bot_challenge
+  - fill_information
+  - bot_challenge2
+
+entities:
+  - PERSON
+
+slots:
+  age:
+    type: any
+    influence_conversation: false
+    mappings:
+    - type: custom
+      conditions:
+      - active_loop: form1_form
+  name:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: PERSON
+      conditions:
+      - active_loop: form1_form
+
+forms:
+  form1_form:
+    required_slots:
+    - name
+    - age
+
+actions:
+  - action_bot_challenge
+  - action_ask_form1_form_name
+  - action_ask_form1_form_age
+  - validate_form1_form
+  - action_answer_back
+  - action_respond_iambot
+
+
+session_config:
+  session_expiration_time: 5
+  carry_over_slots_to_new_session: false
+
+version: '3.1'
