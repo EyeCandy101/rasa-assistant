@@ -93,6 +93,7 @@ jobs:
 
       - name: Configure Kubernetes Context
         run: |
+          export KUBECONFIG=$HOME/.kube/config
           kubectl config use-context default
 
       - name: Test kubectl connection
