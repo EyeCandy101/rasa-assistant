@@ -2,11 +2,29 @@
 FROM arm64v8/python:3.9-slim AS builder
 WORKDIR /app
 
+# Install build essentials
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip
+RUN pip install --no-cache-dir --upgrade pip
+
 # Copy dependencies
 COPY ./requirements.txt /app/
 
-# Install Rasa and dependencies
-RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+# Install pre-built wheels for spaCy dependencies
+RUN pip install --no-cache-dir \
+    numpy==1.23.5 \
+    cython==0.29.32 \
+    blis==0.7.9 \
+    spacy==3.4.4 \
+    --extra-index-url https://www.piwheels.org/simple
+
+# Install Rasa and other dependencies
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Download spaCy language model
 RUN python -m spacy download en_core_web_md
