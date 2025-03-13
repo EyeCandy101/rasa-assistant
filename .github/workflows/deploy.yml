@@ -60,7 +60,7 @@ jobs:
 
   build-and-push:
     needs: build-model
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, arm64, raspi]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -86,34 +86,14 @@ jobs:
 
   deploy:
     needs: build-and-push
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, arm64, raspi]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Reconstruct kubeconfig
+      - name: Configure Kubernetes Context
         run: |
-          mkdir -p ~/.kube
-          echo "
-          apiVersion: v1
-          kind: Config
-          clusters:
-          - name: k3s
-            cluster:
-              certificate-authority-data: ${{ secrets.K8S_CERTIFICATE_AUTHORITY_DATA }}
-              server: ${{ secrets.K8S_SERVER }}
-          contexts:
-          - name: k3s-context
-            context:
-              cluster: k3s
-              user: k3s-user
-          current-context: k3s-context
-          users:
-          - name: k3s-user
-            user:
-              client-certificate-data: ${{ secrets.K8S_CLIENT_CERTIFICATE_DATA }}
-              client-key-data: ${{ secrets.K8S_CLIENT_KEY_DATA }}
-          " > ~/.kube/config
+          kubectl config use-context default
 
       - name: Test kubectl connection
         run: |
