@@ -27,8 +27,10 @@ RUN pip install --no-cache-dir \
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Download spaCy language model
-RUN python -m spacy download en_core_web_md
-
+RUN python -m spacy download en_core_web_md && \
+    python -c "import en_core_web_md; print(en_core_web_md.__file__)" && \
+    python -c "import spacy; print(spacy.util.get_data_path())"
+    
 # Stage 2: Minimal Runtime
 FROM arm64v8/python:3.9-slim
 WORKDIR /app
@@ -37,7 +39,7 @@ WORKDIR /app
 COPY --from=builder /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 # Copy spaCy language models
-COPY --from=builder /root/.cache/spacy/ /root/.cache/spacy/
+#COPY --from=builder /root/.cache/spacy/ /root/.cache/spacy/
 
 # Copy Rasa project files
 COPY ./rasa /app/rasa
