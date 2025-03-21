@@ -28,8 +28,7 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Download spaCy language model
 RUN python -m spacy download en_core_web_md && \
-    python -c "import en_core_web_md; print(en_core_web_md.__file__)" && \
-    python -c "import spacy; print(spacy.util.get_data_path())"
+    python -c "import en_core_web_md; print(en_core_web_md.__file__)"
     
 # Stage 2: Minimal Runtime
 FROM arm64v8/python:3.9-slim
