@@ -80,9 +80,13 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Build & Push Docker Image
+      - name: Build & Push Rasa Image
         run: |
           docker buildx build --platform linux/arm64 -t eyecandy101/rasa:latest --push .
+          
+      - name: Build & Push Action Server Image
+        run: |
+          docker buildx build --platform linux/arm64 -t eyecandy101/action-server:latest -f Dockerfile-actions --push .
 
   deploy:
     needs: build-and-push
