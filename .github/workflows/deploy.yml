@@ -99,8 +99,20 @@ jobs:
       - name: Test kubectl connection
         run: |
           kubectl get nodes
+          
+      - name: Apply Kubernetes ConfigMap (for YML files)
+        run: |
+          kubectl delete configmap rasa-config --ignore-not-found
+          kubectl create configmap rasa-config \
+          --from-file=rasa/config.yml \
+          --from-file=rasa/credentials.yml \
+          --from-file=rasa/endpoints.yml \
+          --from-file=rasa/data/nlu.yml \
+          --from-file=rasa/data/rules.yml \
+          --from-file=rasa/data/stories.yml
 
       - name: Deploy to K3s
         run: |
           kubectl apply -f k8s/rasa-deployment.yaml
+          kubectl apply -f action-server-deployment.yaml
           #kubectl apply -f k8s/service.yaml
