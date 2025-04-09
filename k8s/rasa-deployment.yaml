@@ -17,6 +17,14 @@ spec:
         image: eyecandy101/rasa:latest
         ports:
         - containerPort: 5005
+        volumeMounts:
+        - name: rasa-config-volume
+          mountPath: /app/config
+          readOnly: true 
+      volumes:
+      - name: rasa-config-volume
+        configMap:
+          name: rasa-config
 ---
 apiVersion: v1
 kind: Service
