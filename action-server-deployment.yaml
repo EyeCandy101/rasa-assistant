@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: action-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: action-server
+  template:
+    metadata:
+      labels:
+        app: action-server
+    spec:
+      containers:
+      - name: action-server
+        image: eyecandy101/action-server:latest  
+        ports:
+        - containerPort: 5055
+        resources:
+          requests:
+            memory: "200Mi"
+            cpu: "100m"
+          limits:
+            memory: "400Mi"
+            cpu: "300m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: action-server-service
+spec:
+  selector:
+    app: action-server
+  ports:
+    - protocol: TCP
+      port: 5055
+      targetPort: 5055
+  type: ClusterIP
