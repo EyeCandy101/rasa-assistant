@@ -45,4 +45,4 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 EXPOSE 5005
 
 # Run Rasa
-CMD ["rasa", "run", "--enable-api", "--cors", "*", "--model", "/app/models/latest.tar.gz"]
+CMD ["rasa", "run", "--enable-api", "--cors", "*", "--model", "/app/models/latest.tar.gz", "--endpoints", "/app/config/endpoints.yml"]
